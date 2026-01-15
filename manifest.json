@@ -1,0 +1,21 @@
+{
+    "name": "Time Boxing App",
+    "short_name": "TimeBox",
+    "description": "タイムボックス管理で集中力を高めるアプリ",
+    "start_url": "./",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#4A90D9",
+    "icons": [
+        {
+            "src": "./apple-touch-icon.png",
+            "sizes": "180x180",
+            "type": "image/png"
+        },
+        {
+            "src": "./favicon.ico",
+            "sizes": "48x48",
+            "type": "image/x-icon"
+        }
+    ]
+}
