@@ -73,6 +73,9 @@ interface Translations {
     // Settings
     settings: string;
     language: string;
+    appearance: string;
+    darkMode: string;
+    themeColor: string;
 
     // Repeat
     repeat: string;
@@ -153,6 +156,9 @@ const translations: Record<Language, Translations> = {
         // Settings
         settings: '設定',
         language: '言語',
+        appearance: '外観',
+        darkMode: 'ダークモード',
+        themeColor: 'テーマカラー',
 
         // Repeat
         repeat: '繰り返し',
@@ -231,6 +237,9 @@ const translations: Record<Language, Translations> = {
         // Settings
         settings: 'Settings',
         language: 'Language',
+        appearance: 'Appearance',
+        darkMode: 'Dark Mode',
+        themeColor: 'Theme Color',
 
         // Repeat
         repeat: 'Repeat',

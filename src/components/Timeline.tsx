@@ -3,6 +3,7 @@ import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { TimeBox } from '../types';
 import { TimeBlock } from './TimeBlock';
 import { TIMELINE_START_HOUR, TIMELINE_END_HOUR, HOUR_HEIGHT } from '../constants/categories';
+import { useTheme } from '../hooks/useTheme';
 
 interface TimelineProps {
     timeBoxes: TimeBox[];
@@ -24,6 +25,8 @@ export const Timeline: React.FC<TimelineProps> = ({
     onTimeBoxPress,
     onStartFocus
 }) => {
+    const { colors } = useTheme();
+
     // Generate hour labels (0-23 only, not 24)
     const hours: number[] = [];
     for (let h = TIMELINE_START_HOUR; h < TIMELINE_END_HOUR; h++) {
@@ -53,7 +56,7 @@ export const Timeline: React.FC<TimelineProps> = ({
 
     return (
         <ScrollView
-            style={styles.container}
+            style={[styles.container, { backgroundColor: colors.background }]}
             showsVerticalScrollIndicator={true}
             contentContainerStyle={[styles.contentContainer, { height: totalHeight }]}
         >
@@ -67,12 +70,12 @@ export const Timeline: React.FC<TimelineProps> = ({
                     ]}
                 >
                     <View style={styles.timeLabelContainer}>
-                        <Text style={styles.timeLabel}>
+                        <Text style={[styles.timeLabel, { color: colors.textSecondary }]}>
                             {String(hour).padStart(2, '0')}:00
                         </Text>
                     </View>
                     <View style={styles.hourSlot}>
-                        <View style={styles.hourLine} />
+                        <View style={[styles.hourLine, { backgroundColor: colors.border }]} />
                     </View>
                 </View>
             ))}
@@ -94,7 +97,6 @@ export const Timeline: React.FC<TimelineProps> = ({
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f8f9fa',
     },
     contentContainer: {
         position: 'relative',
@@ -112,7 +114,6 @@ const styles = StyleSheet.create({
     },
     timeLabel: {
         fontSize: 11,
-        color: '#888',
         fontWeight: '500',
     },
     hourSlot: {
@@ -120,6 +121,5 @@ const styles = StyleSheet.create({
     },
     hourLine: {
         height: 1,
-        backgroundColor: '#E0E0E0',
     },
 });

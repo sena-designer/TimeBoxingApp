@@ -14,6 +14,7 @@ import { RootStackParamList } from '../../App';
 import { Timeline } from '../components/Timeline';
 import { useTimeBoxes } from '../hooks/useTimeBoxes';
 import { useI18n } from '../hooks/useI18n';
+import { useTheme } from '../hooks/useTheme';
 import { formatDate } from '../utils/timeUtils';
 import { TimeBox } from '../types';
 
@@ -23,6 +24,7 @@ export const DayViewScreen: React.FC<Props> = ({ navigation }) => {
     const [currentDate, setCurrentDate] = useState(new Date());
     const { timeBoxes, loading, summary, refresh } = useTimeBoxes(currentDate);
     const { t, language } = useI18n();
+    const { colors, isDarkMode } = useTheme();
 
     // Refresh data when screen comes into focus
     useFocusEffect(
@@ -71,15 +73,17 @@ export const DayViewScreen: React.FC<Props> = ({ navigation }) => {
 
     // Format date based on language
     const formatDisplayDate = (date: Date): string => {
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+
         if (language === 'ja') {
             const days = ['日', '月', '火', '水', '木', '金', '土'];
-            const month = date.getMonth() + 1;
-            const day = date.getDate();
-            return `${month}/${day} (${days[date.getDay()]})`;
+            return `${year}年${month}月${day}日 (${days[date.getDay()]})`;
         } else {
             const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
             const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            return `${months[date.getMonth()]} ${date.getDate()} (${days[date.getDay()]})`;
+            return `${months[date.getMonth()]} ${day}, ${year} (${days[date.getDay()]})`;
         }
     };
 
@@ -107,26 +111,29 @@ export const DayViewScreen: React.FC<Props> = ({ navigation }) => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-            <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+            <StatusBar
+                barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+                backgroundColor={colors.card}
+            />
 
             {/* Header */}
-            <View style={styles.header}>
+            <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
                 <TouchableOpacity style={styles.navButton} onPress={goToPreviousDay}>
-                    <Text style={styles.navButtonText}>◀</Text>
+                    <Text style={[styles.navButtonText, { color: colors.primary }]}>◀</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity onPress={goToToday}>
-                    <Text style={[styles.dateText, isToday && styles.todayText]}>
+                    <Text style={[styles.dateText, { color: isToday ? colors.primary : colors.text }]}>
                         {formatDisplayDate(currentDate)}
                     </Text>
                     {!isToday && (
-                        <Text style={styles.todayHint}>{t.tapToGoToday}</Text>
+                        <Text style={[styles.todayHint, { color: colors.textSecondary }]}>{t.tapToGoToday}</Text>
                     )}
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.navButton} onPress={goToNextDay}>
-                    <Text style={styles.navButtonText}>▶</Text>
+                    <Text style={[styles.navButtonText, { color: colors.primary }]}>▶</Text>
                 </TouchableOpacity>
             </View>
 
@@ -138,29 +145,35 @@ export const DayViewScreen: React.FC<Props> = ({ navigation }) => {
             />
 
             {/* Summary */}
-            <View style={styles.summary}>
+            <View style={[styles.summary, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
                 <View style={styles.summaryItem}>
-                    <Text style={styles.summaryLabel}>{t.completed}</Text>
-                    <Text style={styles.summaryValue}>
+                    <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>{t.completed}</Text>
+                    <Text style={[styles.summaryValue, { color: colors.text }]}>
                         {summary.completedBlocks}/{summary.totalBlocks}
                     </Text>
                 </View>
-                <View style={styles.summaryDivider} />
+                <View style={[styles.summaryDivider, { backgroundColor: colors.border }]} />
                 <View style={styles.summaryItem}>
-                    <Text style={styles.summaryLabel}>{t.focusTime}</Text>
-                    <Text style={styles.summaryValue}>
+                    <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>{t.focusTime}</Text>
+                    <Text style={[styles.summaryValue, { color: colors.text }]}>
                         {formatDuration(summary.totalFocusMinutes)}
                     </Text>
                 </View>
             </View>
 
             {/* Settings Button */}
-            <TouchableOpacity style={styles.settingsButton} onPress={handleOpenSettings}>
-                <Text style={styles.settingsButtonText}>⚙</Text>
+            <TouchableOpacity
+                style={[styles.settingsButton, { backgroundColor: colors.card }]}
+                onPress={handleOpenSettings}
+            >
+                <Text style={[styles.settingsButtonText, { color: colors.textSecondary }]}>⚙</Text>
             </TouchableOpacity>
 
             {/* Add Button */}
-            <TouchableOpacity style={styles.addButton} onPress={handleAddNew}>
+            <TouchableOpacity
+                style={[styles.addButton, { backgroundColor: colors.primary }]}
+                onPress={handleAddNew}
+            >
                 <Text style={styles.addButtonText}>+</Text>
             </TouchableOpacity>
         </SafeAreaView>
@@ -170,47 +183,36 @@ export const DayViewScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f8f9fa',
     },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: 16,
-        paddingVertical: 16,
-        backgroundColor: '#fff',
+        paddingVertical: 12,
         borderBottomWidth: 1,
-        borderBottomColor: '#eee',
     },
     navButton: {
         padding: 12,
     },
     navButtonText: {
         fontSize: 18,
-        color: '#4A90D9',
     },
     dateText: {
-        fontSize: 20,
+        fontSize: 16,
         fontWeight: '700',
-        color: '#333',
         textAlign: 'center',
-    },
-    todayText: {
-        color: '#4A90D9',
     },
     todayHint: {
         fontSize: 11,
-        color: '#999',
         textAlign: 'center',
         marginTop: 2,
     },
     summary: {
         flexDirection: 'row',
-        backgroundColor: '#fff',
         paddingVertical: 16,
         paddingHorizontal: 20,
         borderTopWidth: 1,
-        borderTopColor: '#eee',
     },
     summaryItem: {
         flex: 1,
@@ -218,18 +220,15 @@ const styles = StyleSheet.create({
     },
     summaryDivider: {
         width: 1,
-        backgroundColor: '#eee',
         marginHorizontal: 16,
     },
     summaryLabel: {
         fontSize: 12,
-        color: '#666',
         marginBottom: 4,
     },
     summaryValue: {
         fontSize: 18,
         fontWeight: '700',
-        color: '#333',
     },
     settingsButton: {
         position: 'absolute',
@@ -238,7 +237,6 @@ const styles = StyleSheet.create({
         width: 50,
         height: 50,
         borderRadius: 25,
-        backgroundColor: '#fff',
         justifyContent: 'center',
         alignItems: 'center',
         shadowColor: '#000',
@@ -249,7 +247,6 @@ const styles = StyleSheet.create({
     },
     settingsButtonText: {
         fontSize: 24,
-        color: '#666',
     },
     addButton: {
         position: 'absolute',
@@ -258,10 +255,9 @@ const styles = StyleSheet.create({
         width: 60,
         height: 60,
         borderRadius: 30,
-        backgroundColor: '#4A90D9',
         justifyContent: 'center',
         alignItems: 'center',
-        shadowColor: '#4A90D9',
+        shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 8,

@@ -4,6 +4,7 @@ import { TimeBox, Status } from '../types';
 import { getCategoryColor } from '../constants/categories';
 import { calculateDuration } from '../utils/timeUtils';
 import { useI18n, getCategoryLabel } from '../hooks/useI18n';
+import { useTheme } from '../hooks/useTheme';
 
 interface TimeBlockProps {
     timeBox: TimeBox;
@@ -21,6 +22,7 @@ const STATUS_ICONS: Record<Status, string> = {
 
 export const TimeBlock: React.FC<TimeBlockProps> = ({ timeBox, onPress, onStart }) => {
     const { t, language } = useI18n();
+    const { colors } = useTheme();
     const categoryColor = getCategoryColor(timeBox.category);
     const duration = calculateDuration(timeBox.startTime, timeBox.endTime);
 
@@ -48,36 +50,44 @@ export const TimeBlock: React.FC<TimeBlockProps> = ({ timeBox, onPress, onStart 
 
     return (
         <TouchableOpacity
-            style={[styles.container, { borderLeftColor: categoryColor }]}
+            style={[
+                styles.container,
+                {
+                    borderLeftColor: categoryColor,
+                    backgroundColor: colors.card,
+                }
+            ]}
             onPress={onPress}
             activeOpacity={0.7}
         >
+            {/* Header: Time and Status */}
             <View style={styles.header}>
-                <View style={styles.timeContainer}>
-                    <Text style={styles.time}>
-                        {timeBox.startTime} - {timeBox.endTime}
+                <View style={styles.titleRow}>
+                    <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>
+                        {timeBox.title}
                     </Text>
-                    <Text style={styles.duration}>({formatDuration(duration)})</Text>
+                    <Text style={[styles.status, { color: getStatusColor(timeBox.status) }]}>
+                        {STATUS_ICONS[timeBox.status]}
+                    </Text>
                 </View>
-                <Text style={[styles.status, { color: getStatusColor(timeBox.status) }]}>
-                    {STATUS_ICONS[timeBox.status]}
-                </Text>
             </View>
 
-            <Text style={styles.title} numberOfLines={2}>
-                {timeBox.title}
-            </Text>
-
+            {/* Footer: Category, Time, and Start Button */}
             <View style={styles.footer}>
-                <View style={[styles.categoryBadge, { backgroundColor: categoryColor + '20' }]}>
-                    <Text style={[styles.categoryText, { color: categoryColor }]}>
-                        {getCategoryLabel(timeBox.category, t)}
+                <View style={styles.infoRow}>
+                    <View style={[styles.categoryBadge, { backgroundColor: categoryColor + '20' }]}>
+                        <Text style={[styles.categoryText, { color: categoryColor }]}>
+                            {getCategoryLabel(timeBox.category, t)}
+                        </Text>
+                    </View>
+                    <Text style={[styles.time, { color: colors.textSecondary }]}>
+                        {timeBox.startTime}-{timeBox.endTime}
                     </Text>
                 </View>
 
                 {timeBox.status === 'not_started' && onStart && (
                     <TouchableOpacity
-                        style={styles.startButton}
+                        style={[styles.startButton, { backgroundColor: colors.primary }]}
                         onPress={(e) => {
                             e.stopPropagation();
                             onStart();
@@ -104,69 +114,69 @@ const getStatusColor = (status: Status): string => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
         borderRadius: 8,
-        padding: 10,
+        paddingHorizontal: 10,
+        paddingVertical: 6,
         borderLeftWidth: 4,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.08,
         shadowRadius: 3,
         elevation: 2,
+        overflow: 'hidden',
+        justifyContent: 'space-between',
     },
     header: {
+        flexShrink: 1,
+    },
+    titleRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 8,
-    },
-    timeContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    time: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: '#333',
-    },
-    duration: {
-        fontSize: 12,
-        color: '#666',
-        marginLeft: 8,
-    },
-    status: {
-        fontSize: 18,
-        fontWeight: 'bold',
     },
     title: {
-        fontSize: 16,
+        flex: 1,
+        fontSize: 14,
         fontWeight: '600',
-        color: '#1a1a1a',
-        marginBottom: 12,
+        marginRight: 8,
+    },
+    status: {
+        fontSize: 14,
+        fontWeight: 'bold',
     },
     footer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+        marginTop: 4,
+    },
+    infoRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        flexShrink: 1,
+    },
+    time: {
+        fontSize: 11,
     },
     categoryBadge: {
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 12,
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        borderRadius: 10,
     },
     categoryText: {
-        fontSize: 12,
+        fontSize: 10,
         fontWeight: '500',
     },
     startButton: {
-        backgroundColor: '#4A90D9',
-        paddingHorizontal: 16,
-        paddingVertical: 6,
-        borderRadius: 16,
+        paddingHorizontal: 12,
+        paddingVertical: 4,
+        borderRadius: 12,
+        flexShrink: 0,
     },
     startButtonText: {
         color: '#fff',
-        fontSize: 12,
+        fontSize: 11,
         fontWeight: '600',
     },
 });

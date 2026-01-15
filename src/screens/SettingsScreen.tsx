@@ -5,49 +5,156 @@ import {
     TouchableOpacity,
     StyleSheet,
     SafeAreaView,
-    ScrollView
+    ScrollView,
+    Switch
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../App';
 import { useI18n } from '../hooks/useI18n';
+import { useTheme, THEME_COLORS } from '../hooks/useTheme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Settings'>;
 
 export const SettingsScreen: React.FC<Props> = ({ navigation }) => {
     const { language, setLanguage, t } = useI18n();
+    const { isDarkMode, setDarkMode, themeColorName, setThemeColor, colors } = useTheme();
+
+    const languages = [
+        { value: 'ja' as const, label: '日本語' },
+        { value: 'en' as const, label: 'English' },
+    ];
+
+    const dynamicStyles = {
+        container: {
+            flex: 1,
+            backgroundColor: colors.background,
+        },
+        header: {
+            flexDirection: 'row' as const,
+            alignItems: 'center' as const,
+            justifyContent: 'space-between' as const,
+            paddingHorizontal: 16,
+            paddingVertical: 16,
+            backgroundColor: colors.card,
+            borderBottomWidth: 1,
+            borderBottomColor: colors.border,
+        },
+        headerTitle: {
+            fontSize: 17,
+            fontWeight: '600' as const,
+            color: colors.text,
+        },
+        section: {
+            backgroundColor: colors.card,
+            marginTop: 20,
+            paddingHorizontal: 16,
+            paddingVertical: 16,
+            borderTopWidth: 1,
+            borderBottomWidth: 1,
+            borderColor: colors.border,
+        },
+        sectionTitle: {
+            fontSize: 14,
+            fontWeight: '600' as const,
+            color: colors.textSecondary,
+            marginBottom: 12,
+        },
+        optionText: {
+            fontSize: 15,
+            color: colors.text,
+        },
+        optionButton: {
+            paddingHorizontal: 16,
+            paddingVertical: 10,
+            borderRadius: 20,
+            borderWidth: 1,
+            borderColor: colors.border,
+            backgroundColor: colors.card,
+        },
+        row: {
+            flexDirection: 'row' as const,
+            justifyContent: 'space-between' as const,
+            alignItems: 'center' as const,
+            paddingVertical: 8,
+        },
+        rowLabel: {
+            fontSize: 16,
+            color: colors.text,
+        },
+    };
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={dynamicStyles.container}>
             {/* Header */}
-            <View style={styles.header}>
+            <View style={dynamicStyles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Text style={styles.backButton}>←</Text>
+                    <Text style={{ fontSize: 16, color: colors.primary }}>←</Text>
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>{t.settings}</Text>
-                <View style={styles.headerSpacer} />
+                <Text style={dynamicStyles.headerTitle}>{t.settings}</Text>
+                <View style={{ width: 24 }} />
             </View>
 
-            <ScrollView style={styles.content}>
+            <ScrollView>
                 {/* Language Section */}
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>{t.language}</Text>
+                <View style={dynamicStyles.section}>
+                    <Text style={dynamicStyles.sectionTitle}>{t.language}</Text>
                     <View style={styles.optionGroup}>
-                        <TouchableOpacity
-                            style={[styles.optionButton, language === 'ja' && styles.optionButtonSelected]}
-                            onPress={() => setLanguage('ja')}
-                        >
-                            <Text style={[styles.optionText, language === 'ja' && styles.optionTextSelected]}>
-                                日本語
-                            </Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.optionButton, language === 'en' && styles.optionButtonSelected]}
-                            onPress={() => setLanguage('en')}
-                        >
-                            <Text style={[styles.optionText, language === 'en' && styles.optionTextSelected]}>
-                                English
-                            </Text>
-                        </TouchableOpacity>
+                        {languages.map(item => (
+                            <TouchableOpacity
+                                key={item.value}
+                                style={[
+                                    dynamicStyles.optionButton,
+                                    language === item.value && {
+                                        borderColor: colors.primary,
+                                        backgroundColor: colors.primary
+                                    }
+                                ]}
+                                onPress={() => setLanguage(item.value)}
+                            >
+                                <Text style={[
+                                    dynamicStyles.optionText,
+                                    language === item.value && { color: '#fff', fontWeight: '600' }
+                                ]}>
+                                    {item.label}
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                </View>
+
+                {/* Dark Mode Section */}
+                <View style={dynamicStyles.section}>
+                    <Text style={dynamicStyles.sectionTitle}>{t.appearance}</Text>
+                    <View style={dynamicStyles.row}>
+                        <Text style={dynamicStyles.rowLabel}>{t.darkMode}</Text>
+                        <Switch
+                            value={isDarkMode}
+                            onValueChange={setDarkMode}
+                            trackColor={{ false: '#ccc', true: colors.primary }}
+                            thumbColor={isDarkMode ? '#fff' : '#f4f3f4'}
+                        />
+                    </View>
+                </View>
+
+                {/* Theme Color Section */}
+                <View style={dynamicStyles.section}>
+                    <Text style={dynamicStyles.sectionTitle}>{t.themeColor}</Text>
+                    <View style={styles.colorGrid}>
+                        {THEME_COLORS.map(item => (
+                            <TouchableOpacity
+                                key={item.name}
+                                style={[
+                                    styles.colorButton,
+                                    { backgroundColor: item.color },
+                                    themeColorName === item.name && styles.colorButtonSelected
+                                ]}
+                                onPress={() => setThemeColor(item.name)}
+                            >
+                                {themeColorName === item.name && (
+                                    <Text style={styles.colorCheck}>✓</Text>
+                                )}
+                            </TouchableOpacity>
+                        ))}
                     </View>
                 </View>
             </ScrollView>
@@ -56,72 +163,35 @@ export const SettingsScreen: React.FC<Props> = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#f8f9fa',
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 16,
-        backgroundColor: '#fff',
-        borderBottomWidth: 1,
-        borderBottomColor: '#eee',
-    },
-    backButton: {
-        fontSize: 24,
-        color: '#4A90D9',
-        paddingRight: 8,
-    },
-    headerTitle: {
-        fontSize: 17,
-        fontWeight: '600',
-        color: '#333',
-    },
-    headerSpacer: {
-        width: 32,
-    },
-    content: {
-        flex: 1,
-        padding: 16,
-    },
-    section: {
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        padding: 16,
-        marginBottom: 16,
-    },
-    sectionTitle: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: '#333',
-        marginBottom: 12,
-    },
     optionGroup: {
         flexDirection: 'row',
         flexWrap: 'wrap',
         gap: 8,
     },
-    optionButton: {
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-        borderRadius: 20,
-        borderWidth: 1,
-        borderColor: '#ddd',
-        backgroundColor: '#fff',
+    colorGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 12,
     },
-    optionButtonSelected: {
-        borderColor: '#4A90D9',
-        backgroundColor: '#4A90D9',
+    colorButton: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
-    optionText: {
-        fontSize: 14,
-        color: '#333',
+    colorButtonSelected: {
+        borderWidth: 3,
+        borderColor: '#fff',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        elevation: 4,
     },
-    optionTextSelected: {
+    colorCheck: {
         color: '#fff',
-        fontWeight: '600',
+        fontSize: 18,
+        fontWeight: 'bold',
     },
 });
