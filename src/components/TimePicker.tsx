@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal, ScrollView } from 'react-native';
+import { useTheme } from '../hooks/useTheme';
 
 interface TimePickerProps {
     label: string;
@@ -11,6 +12,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({ label, value, onChange }
     const [modalVisible, setModalVisible] = useState(false);
     const [tempHour, setTempHour] = useState(() => parseInt(value.split(':')[0]));
     const [tempMinute, setTempMinute] = useState(() => parseInt(value.split(':')[1]));
+    const { colors } = useTheme();
 
     const hours = Array.from({ length: 24 }, (_, i) => i);
     const minutes = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
@@ -29,9 +31,9 @@ export const TimePicker: React.FC<TimePickerProps> = ({ label, value, onChange }
 
     return (
         <View style={styles.container}>
-            <Text style={styles.label}>{label}</Text>
-            <TouchableOpacity style={styles.valueButton} onPress={openPicker}>
-                <Text style={styles.valueText}>{value}</Text>
+            <Text style={[styles.label, { color: colors.text }]}>{label}</Text>
+            <TouchableOpacity style={[styles.valueButton, { backgroundColor: colors.card }]} onPress={openPicker}>
+                <Text style={[styles.valueText, { color: colors.text }]}>{value}</Text>
             </TouchableOpacity>
 
             <Modal
@@ -41,20 +43,20 @@ export const TimePicker: React.FC<TimePickerProps> = ({ label, value, onChange }
                 onRequestClose={() => setModalVisible(false)}
             >
                 <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        <View style={styles.modalHeader}>
+                    <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+                        <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
                             <TouchableOpacity onPress={() => setModalVisible(false)}>
-                                <Text style={styles.cancelButton}>キャンセル</Text>
+                                <Text style={[styles.cancelButton, { color: colors.textSecondary }]}>キャンセル</Text>
                             </TouchableOpacity>
-                            <Text style={styles.modalTitle}>{label}</Text>
+                            <Text style={[styles.modalTitle, { color: colors.text }]}>{label}</Text>
                             <TouchableOpacity onPress={confirmSelection}>
-                                <Text style={styles.doneButton}>完了</Text>
+                                <Text style={[styles.doneButton, { color: colors.primary }]}>完了</Text>
                             </TouchableOpacity>
                         </View>
 
                         <View style={styles.pickerContainer}>
                             <View style={styles.pickerColumn}>
-                                <Text style={styles.columnLabel}>時</Text>
+                                <Text style={[styles.columnLabel, { color: colors.textSecondary }]}>時</Text>
                                 <ScrollView
                                     style={styles.scrollView}
                                     showsVerticalScrollIndicator={false}
@@ -64,12 +66,13 @@ export const TimePicker: React.FC<TimePickerProps> = ({ label, value, onChange }
                                             key={h}
                                             style={[
                                                 styles.pickerItem,
-                                                tempHour === h && styles.pickerItemSelected
+                                                tempHour === h && [styles.pickerItemSelected, { backgroundColor: colors.primary }]
                                             ]}
                                             onPress={() => setTempHour(h)}
                                         >
                                             <Text style={[
                                                 styles.pickerItemText,
+                                                { color: colors.text },
                                                 tempHour === h && styles.pickerItemTextSelected
                                             ]}>
                                                 {String(h).padStart(2, '0')}
@@ -79,10 +82,10 @@ export const TimePicker: React.FC<TimePickerProps> = ({ label, value, onChange }
                                 </ScrollView>
                             </View>
 
-                            <Text style={styles.separator}>:</Text>
+                            <Text style={[styles.separator, { color: colors.text }]}>:</Text>
 
                             <View style={styles.pickerColumn}>
-                                <Text style={styles.columnLabel}>分</Text>
+                                <Text style={[styles.columnLabel, { color: colors.textSecondary }]}>分</Text>
                                 <ScrollView
                                     style={styles.scrollView}
                                     showsVerticalScrollIndicator={false}
@@ -92,12 +95,13 @@ export const TimePicker: React.FC<TimePickerProps> = ({ label, value, onChange }
                                             key={m}
                                             style={[
                                                 styles.pickerItem,
-                                                tempMinute === m && styles.pickerItemSelected
+                                                tempMinute === m && [styles.pickerItemSelected, { backgroundColor: colors.primary }]
                                             ]}
                                             onPress={() => setTempMinute(m)}
                                         >
                                             <Text style={[
                                                 styles.pickerItemText,
+                                                { color: colors.text },
                                                 tempMinute === m && styles.pickerItemTextSelected
                                             ]}>
                                                 {String(m).padStart(2, '0')}

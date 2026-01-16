@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-nati
 import { Category } from '../types';
 import { CATEGORIES } from '../constants/categories';
 import { useI18n, getCategoryLabel } from '../hooks/useI18n';
+import { useTheme } from '../hooks/useTheme';
 
 interface CategoryPickerProps {
     selected: Category;
@@ -11,10 +12,11 @@ interface CategoryPickerProps {
 
 export const CategoryPicker: React.FC<CategoryPickerProps> = ({ selected, onSelect }) => {
     const { t } = useI18n();
+    const { colors } = useTheme();
 
     return (
         <View style={styles.container}>
-            <Text style={styles.label}>{t.category}</Text>
+            <Text style={[styles.label, { color: colors.text }]}>{t.category}</Text>
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}

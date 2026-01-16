@@ -24,6 +24,7 @@ import {
 } from '../storage/timeBoxStorage';
 import { isValidTimeRange, generateId } from '../utils/timeUtils';
 import { useI18n } from '../hooks/useI18n';
+import { useTheme } from '../hooks/useTheme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Edit'>;
 
@@ -38,29 +39,38 @@ const AlertDialog: React.FC<{
         onPress: () => void;
     }>;
     onClose: () => void;
-}> = ({ visible, title, message, buttons, onClose }) => {
+    colors: {
+        background: string;
+        card: string;
+        text: string;
+        textSecondary: string;
+        border: string;
+        primary: string;
+    };
+}> = ({ visible, title, message, buttons, onClose, colors }) => {
     if (!visible) return null;
 
     return (
         <Modal transparent visible={visible} animationType="fade" onRequestClose={onClose}>
             <View style={dialogStyles.overlay}>
-                <View style={dialogStyles.container}>
-                    <Text style={dialogStyles.title}>{title}</Text>
-                    <Text style={dialogStyles.message}>{message}</Text>
+                <View style={[dialogStyles.container, { backgroundColor: colors.card }]}>
+                    <Text style={[dialogStyles.title, { color: colors.text }]}>{title}</Text>
+                    <Text style={[dialogStyles.message, { color: colors.textSecondary }]}>{message}</Text>
                     <View style={dialogStyles.buttons}>
                         {buttons.map((button, index) => (
                             <TouchableOpacity
                                 key={index}
                                 style={[
                                     dialogStyles.button,
-                                    button.style === 'cancel' && dialogStyles.cancelButton,
+                                    { backgroundColor: colors.primary },
+                                    button.style === 'cancel' && [dialogStyles.cancelButton, { backgroundColor: colors.border }],
                                     button.style === 'destructive' && dialogStyles.destructiveButton,
                                 ]}
                                 onPress={button.onPress}
                             >
                                 <Text style={[
                                     dialogStyles.buttonText,
-                                    button.style === 'cancel' && dialogStyles.cancelText,
+                                    button.style === 'cancel' && [dialogStyles.cancelText, { color: colors.textSecondary }],
                                     button.style === 'destructive' && dialogStyles.destructiveText,
                                 ]}>
                                     {button.text}
@@ -136,6 +146,7 @@ export const EditScreen: React.FC<Props> = ({ navigation, route }) => {
     const { timeBoxId, date } = route.params;
     const isNew = !timeBoxId;
     const { t } = useI18n();
+    const { colors } = useTheme();
 
     const [title, setTitle] = useState('');
     const [startTime, setStartTime] = useState('09:00');
@@ -247,16 +258,16 @@ export const EditScreen: React.FC<Props> = ({ navigation, route }) => {
 
     if (loading) {
         return (
-            <SafeAreaView style={styles.container}>
+            <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
                 <View style={styles.loadingContainer}>
-                    <Text>Loading...</Text>
+                    <Text style={{ color: colors.text }}>Loading...</Text>
                 </View>
             </SafeAreaView>
         );
     }
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
             {/* Delete Confirmation Dialog */}
             <AlertDialog
                 visible={showDeleteDialog}
@@ -267,6 +278,7 @@ export const EditScreen: React.FC<Props> = ({ navigation, route }) => {
                     { text: t.delete, style: 'destructive', onPress: confirmDelete },
                 ]}
                 onClose={() => setShowDeleteDialog(false)}
+                colors={colors}
             />
 
             {/* Error Dialog */}
@@ -278,6 +290,7 @@ export const EditScreen: React.FC<Props> = ({ navigation, route }) => {
                     { text: t.ok, style: 'default', onPress: () => setShowErrorDialog(false) },
                 ]}
                 onClose={() => setShowErrorDialog(false)}
+                colors={colors}
             />
 
             <KeyboardAvoidingView
@@ -285,28 +298,28 @@ export const EditScreen: React.FC<Props> = ({ navigation, route }) => {
                 style={styles.keyboardView}
             >
                 {/* Header */}
-                <View style={styles.header}>
+                <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
                     <TouchableOpacity onPress={() => navigation.goBack()}>
-                        <Text style={styles.cancelButton}>{t.cancel}</Text>
+                        <Text style={[styles.cancelButton, { color: colors.textSecondary }]}>{t.cancel}</Text>
                     </TouchableOpacity>
-                    <Text style={styles.headerTitle}>
+                    <Text style={[styles.headerTitle, { color: colors.text }]}>
                         {isNew ? t.newTask : t.edit}
                     </Text>
                     <TouchableOpacity onPress={handleSave}>
-                        <Text style={styles.saveButton}>{t.save}</Text>
+                        <Text style={[styles.saveButton, { color: colors.primary }]}>{t.save}</Text>
                     </TouchableOpacity>
                 </View>
 
                 <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
                     {/* Title Input */}
                     <View style={styles.inputGroup}>
-                        <Text style={styles.label}>{t.taskName}</Text>
+                        <Text style={[styles.label, { color: colors.text }]}>{t.taskName}</Text>
                         <TextInput
-                            style={styles.textInput}
+                            style={[styles.textInput, { backgroundColor: colors.card, color: colors.text, borderColor: colors.border }]}
                             value={title}
                             onChangeText={setTitle}
                             placeholder={t.taskNamePlaceholder}
-                            placeholderTextColor="#999"
+                            placeholderTextColor={colors.textSecondary}
                             maxLength={50}
                         />
                     </View>
@@ -320,7 +333,7 @@ export const EditScreen: React.FC<Props> = ({ navigation, route }) => {
                                 onChange={setStartTime}
                             />
                         </View>
-                        <Text style={styles.timeSeparator}>〜</Text>
+                        <Text style={[styles.timeSeparator, { color: colors.textSecondary }]}>〜</Text>
                         <View style={styles.timePickerWrapper}>
                             <TimePicker
                                 label={t.endTime}
@@ -335,19 +348,21 @@ export const EditScreen: React.FC<Props> = ({ navigation, route }) => {
 
                     {/* Repeat Picker */}
                     <View style={styles.repeatSection}>
-                        <Text style={styles.label}>{t.repeat}</Text>
+                        <Text style={[styles.label, { color: colors.text }]}>{t.repeat}</Text>
                         <View style={styles.repeatOptions}>
                             {repeatOptions.map(option => (
                                 <TouchableOpacity
                                     key={option.value}
                                     style={[
                                         styles.repeatOption,
-                                        repeat === option.value && styles.repeatOptionSelected
+                                        { borderColor: colors.border, backgroundColor: colors.card },
+                                        repeat === option.value && [styles.repeatOptionSelected, { borderColor: colors.primary, backgroundColor: colors.primary }]
                                     ]}
                                     onPress={() => setRepeat(option.value)}
                                 >
                                     <Text style={[
                                         styles.repeatOptionText,
+                                        { color: colors.text },
                                         repeat === option.value && styles.repeatOptionTextSelected
                                     ]}>
                                         {option.label}
